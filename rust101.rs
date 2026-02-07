@@ -2644,3 +2644,721 @@ adder
 
 
 
+// Closures, a function-like construct you can store in a variable
+// Iterators, a way of processing a series of elements
+
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+enum ShirtColor {
+    Red,
+    Blue,
+}
+
+struct Inventory {
+    shirts: Vec<ShirtColor>,
+}
+
+impl Inventory {
+    fn giveaway(&self, user_preference: Option<ShirtColor>) -> ShirtColor {
+        user_preference.unwrap_or_else(|| self.most_stocked())
+    }
+
+    fn most_stocked(&self) -> ShirtColor {
+        let mut num_red = 0;
+        let mut num_blue = 0;
+
+        for color in &self.shirts {
+            match color {
+                ShirtColor::Red => num_red += 1,
+                ShirtColor::Blue => num_blue += 1,
+            }
+        }
+        if num_red > num_blue {
+            ShirtColor::Red
+        } else {
+            ShirtColor::Blue
+        }
+    }
+}
+
+fn main() {
+    let store = Inventory {
+        shirts: vec![ShirtColor::Blue, ShirtColor::Red, ShirtColor::Blue],
+    };
+
+    let user_pref1 = Some(ShirtColor::Red);
+    let giveaway1 = store.giveaway(user_pref1);
+    println!(
+        "The user with preference {:?} gets {:?}",
+        user_pref1, giveaway1
+    );
+
+    let user_pref2 = None;
+    let giveaway2 = store.giveaway(user_pref2);
+    println!(
+        "The user with preference {:?} gets {:?}",
+        user_pref2, giveaway2
+    );
+}
+
+    let expensive_closure = |num: u32| -> u32 {
+        println!("calculating slowly...");
+        thread::sleep(Duration::from_secs(2));
+        num
+    };
+
+
+fn  add_one_v1   (x: u32) -> u32 { x + 1 }
+let add_one_v2 = |x: u32| -> u32 { x + 1 };
+let add_one_v3 = |x|             { x + 1 };
+let add_one_v4 = |x|               x + 1  ;
+
+
+    let example_closure = |x| x;
+
+    let s = example_closure(String::from("hello"));
+    let n = example_closure(5);
+
+
+
+    let list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    let only_borrows = || println!("From closure: {list:?}");
+
+    println!("Before calling closure: {list:?}");
+    only_borrows();
+    println!("After calling closure: {list:?}");
+
+
+    let mut list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    let mut borrows_mutably = || list.push(7);
+
+    borrows_mutably();
+    println!("After calling closure: {list:?}");
+
+
+     let list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    thread::spawn(move || println!("From thread: {list:?}"))
+        .join()
+        .unwrap();
+
+
+impl<T> Option<T> {
+    pub fn unwrap_or_else<F>(self, f: F) -> T
+    where
+        F: FnOnce() -> T
+    {
+        match self {
+            Some(x) => x,
+            None => f(),
+        }
+    }
+}
+
+
+
+#[derive(Debug)]
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+fn main() {
+    let mut list = [
+        Rectangle { width: 10, height: 1 },
+        Rectangle { width: 3, height: 5 },
+        Rectangle { width: 7, height: 12 },
+    ];
+
+    list.sort_by_key(|r| r.width);
+
+    println!("{list:#?}");//width/height: 3,5 7,12 10,1
+
+
+       let mut sort_operations = vec![];
+    let value = String::from("closure called");
+
+    list.sort_by_key(|r| {
+        sort_operations.push(value);
+        r.width
+    });
+    println!("{list:#?}");//problem
+
+       let mut num_sort_operations = 0;
+    list.sort_by_key(|r| {
+        num_sort_operations += 1;
+        r.width
+    });
+    println!("{list:#?}, sorted in {num_sort_operations} operations");
+}
+
+
+    let v1 = vec![1, 2, 3];
+
+    let v1_iter = v1.iter();
+  for val in v1_iter {
+        println!("Got: {val}");
+    }
+
+pub trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+    // methods with default implementations elided
+}
+
+    #[test]
+    fn iterator_demonstration() {
+        let v1 = vec![1, 2, 3];
+
+        let mut v1_iter = v1.iter();
+
+        assert_eq!(v1_iter.next(), Some(&1));
+        assert_eq!(v1_iter.next(), Some(&2));
+        assert_eq!(v1_iter.next(), Some(&3));
+        assert_eq!(v1_iter.next(), None);
+    }
+
+    //consume iterator
+     #[test]
+    fn iterator_sum() {
+        let v1 = vec![1, 2, 3];
+
+        let v1_iter = v1.iter();
+
+        let total: i32 = v1_iter.sum();
+
+        assert_eq!(total, 6);
+    }
+    //produce iterators
+     let v1: Vec<i32> = vec![1, 2, 3];
+
+    let v2: Vec<_> = v1.iter().map(|x| x + 1).collect();
+
+    assert_eq!(v2, vec![2, 3, 4]);
+
+
+    #[derive(PartialEq, Debug)]
+struct Shoe {
+    size: u32,
+    style: String,
+}
+
+fn shoes_in_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+    shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn filters_by_size() {
+        let shoes = vec![
+            Shoe {
+                size: 10,
+                style: String::from("sneaker"),
+            },
+            Shoe {
+                size: 13,
+                style: String::from("sandal"),
+            },
+            Shoe {
+                size: 10,
+                style: String::from("boot"),
+            },
+        ];
+
+        let in_my_size = shoes_in_size(shoes, 10);
+
+        assert_eq!(
+            in_my_size,
+            vec![
+                Shoe {
+                    size: 10,
+                    style: String::from("sneaker")
+                },
+                Shoe {
+                    size: 10,
+                    style: String::from("boot")
+                },
+            ]
+        );
+    }
+}
+
+//release profiles are predefined, 
+// customizable profiles with different configurations 
+// that allow for more control over various options for compiling code
+
+//cargo build (--release)
+
+[profile.dev]
+opt-level = 0//default
+//relase?make it 3
+
+// Cargo will apply more optimizations than the default, but not as many as in a release build.
+
+
+//! # My Crate
+//!
+//! `my_crate` is a collection of utilities to make performing certain
+//! calculations more convenient.
+/// Adds one to the number given.
+///
+/// # Examples
+///
+/// ```
+/// let arg = 5;
+/// let answer = my_crate::add_one(arg);
+///
+/// assert_eq!(6, answer);
+/// ```
+pub fn add_one(x: i32) -> i32 {
+    x + 1
+}
+//cargo doc --open 
+// builds  HTML for your current crate’s documentation 
+// (as well as the documentation for all of your crate’s dependencies) 
+// and open the result in a web browser
+
+
+
+//! # Art
+//!
+//! A library for modeling artistic concepts.
+
+pub use self::kinds::PrimaryColor;
+pub use self::kinds::SecondaryColor;
+pub use self::utils::mix;
+
+pub mod kinds {
+    /// The primary colors according to the RYB color model.
+    pub enum PrimaryColor {
+        Red,
+        Yellow,
+        Blue,
+    }
+
+    /// The secondary colors according to the RYB color model.
+    pub enum SecondaryColor {
+        Orange,
+        Green,
+        Purple,
+    }
+}
+
+pub mod utils {
+    use crate::kinds::*;
+
+    /// Combines two primary colors in equal amounts to create
+    /// a secondary color.
+    pub fn mix(c1: PrimaryColor, c2: PrimaryColor) -> SecondaryColor {
+        // --snip--
+    }
+}
+
+
+// use art::kinds::PrimaryColor;
+// use art::utils::mix;
+
+use art::PrimaryColor;
+use art::mix;
+
+
+fn main() {
+    let red = PrimaryColor::Red;
+    let yellow = PrimaryColor::Yellow;
+    mix(red, yellow);
+}
+
+//cargo login->api key(publish crates)
+
+//metadata(publish phase)
+[package]
+name = "guessing_game"
+version = "0.1.0"
+edition = "2024"
+description = "A fun game."
+license = "MIT OR Apache-2.0"
+//cargo publish
+
+//Yanking a version prevents new projects from depending 
+// on that version while allowing all existing projects 
+// that depend on it to continue. 
+// yank means that all projects with a Cargo.lock will not break, 
+// and any future Cargo.lock files 
+// generated will not use the yanked version.
+
+//cargo yank --vers 1.0.1 (--undo)
+
+
+//A workspace is a set of packages that share the same Cargo.lock and output directory
+
+//cargo new adder(bin crate)
+[workspace]
+resolver = "3"
+members = ["adder"]//latest version of algorithm
+
+//cargo new add_one --lib
+members = ["adder", "add_one"]
+
+├── Cargo.lock
+├── Cargo.toml
+├── add_one
+│   ├── Cargo.toml
+│   └── src
+│       └── lib.rs
+├── adder
+│   ├── Cargo.toml
+│   └── src
+│       └── main.rs
+└── target
+
+//add_one/src/lib.rs
+pub fn add_one(x: i32) -> i32 {
+    x + 1
+}
+
+//adder/Cargo.toml
+[dependencies]
+add_one = { path = "../add_one" }
+
+//adder/src/main.rs
+fn main() {
+    let num = 10;
+    println!("Hello, world! {num} plus one is {}!", 
+    add_one::add_one(num));
+}
+
+//add_one/Cargo.toml
+[dependencies]
+rand = "0.8.5"//external package-> use rand;
+
+
+//add_one/src/lib.rs
+pub fn add_one(x: i32) -> i32 {
+    x + 1
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert_eq!(3, add_one(2));
+    }
+}
+// test for 1 crate in a workspace from the top-level dir
+//cargo test -p add_one
+
+
+
+//cargo install ripgrep install binaries
+
+//Smart pointers, are data structures that act like a pointer but also have additional metadata and capabilities
+
+//heap
+fn main() {
+    let b = Box::new(5);
+    println!("b = {b}");
+}
+
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+use crate::List::{Cons, Nil};
+
+fn main() {
+    let list = Cons(1, Cons(2, Cons(3, Nil)));
+}//infinite size
+
+//better
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+use crate::List::{Cons, Nil};
+
+fn main() {
+    let list = 
+    Cons(1, Box::new(Cons(2, Box::new(Cons(3, Box::new(Nil))))));
+}
+
+fn main() {
+    let x = 5;
+    //y to be an instance of a box pointing to a copied value of x 
+    // rather than a reference pointing to the value of x!
+    let y = Box::new(x);
+    //let y = &x; problem
+
+    assert_eq!(5, x);
+    assert_eq!(5, *y);//*(y.deref()) 
+}
+
+
+struct MyBox<T>(T);
+
+impl<T> MyBox<T> {
+    fn new(x: T) -> MyBox<T> {
+        MyBox(x)
+    }
+}//  let y = MyBox::new(x); error! 
+
+use std::ops::Deref;//standard
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+fn hello(name: &str) {
+    println!("Hello, {name}!");
+}//or even better
+
+fn main() {
+    let m = MyBox::new(String::from("Rust"));
+    hello(&m);
+    //    hello(&(*m)[..]); deref MyBox<Str> into Str
+
+}
+//Deref Coercion->
+
+// From &T to &U when T: Deref<Target=U
+// From &mut T to &mut U when T: DerefMut<Target=U>
+// From &mut T to &U when T: Deref<Target=U>
+
+
+struct CustomSmartPointer {
+    data: String,
+}
+
+impl Drop for CustomSmartPointer {
+    fn drop(&mut self) {
+        println!("Dropping 
+        CustomSmartPointer with data `{}`!", self.data);
+    }//drop trait
+}
+
+fn main() {
+    let c = CustomSmartPointer {
+        data: String::from("my stuff"),
+    };
+    let d = CustomSmartPointer {
+        data: String::from("other stuff"),
+    };
+    println!("CustomSmartPointers created");
+
+//     
+//      let c = CustomSmartPointer {
+//         data: String::from("some data"),
+//     };
+//     println!("CustomSmartPointer created");
+//     c.drop(); problem!
+//     println!("CustomSmartPointer dropped before the end of main");
+// }
+
+  let c = CustomSmartPointer {
+        data: String::from("some data"),
+    };
+    println!("CustomSmartPointer created");
+    drop(c);//no problem
+    println!("CustomSmartPointer dropped before the end of main");
+
+
+
+
+    enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+
+
+use crate::List::{Cons, Nil};
+
+fn main() {
+    let a = Cons(5, Box::new(Cons(10, Box::new(Nil))));
+    let b = Cons(3, Box::new(a));
+    let c = Cons(4, Box::new(a));
+}//b->3->5->10->Nil c->4->5... a->5...
+
+
+enum List {
+    // Each Cons variant will now hold a value and an Rc<T> pointing to a List
+    Cons(i32, Rc<List>),
+    Nil,
+}
+
+use crate::List::{Cons, Nil};
+use std::rc::Rc;
+
+fn main() {
+    let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
+    let b = Cons(3, Rc::clone(&a));
+    let c = Cons(4, Rc::clone(&a));
+}
+
+ let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
+    println!("count after creating a = {}", Rc::strong_count(&a));
+    let b = Cons(3, Rc::clone(&a));
+    println!("count after creating b = {}", Rc::strong_count(&a));
+    {
+        let c = Cons(4, Rc::clone(&a));
+        println!("count after creating c = {}", Rc::strong_count(&a));
+    }
+    println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+//     count after creating a = 1
+// count after creating b = 2
+// count after creating c = 3
+// count after c goes out of scope = 2
+
+
+
+
+pub trait Messenger {
+    fn send(&self, msg: &str);
+}
+
+pub struct LimitTracker<'a, T: Messenger> {
+    messenger: &'a T,
+    value: usize,
+    max: usize,
+}
+
+impl<'a, T> LimitTracker<'a, T>
+where
+    T: Messenger,
+{
+    pub fn new(messenger: &'a T, max: usize) -> LimitTracker<'a, T> {
+        LimitTracker {
+            messenger,
+            value: 0,
+            max,
+        }
+    }
+
+    pub fn set_value(&mut self, value: usize) {
+        self.value = value;
+
+        let percentage_of_max = self.value as f64 / self.max as f64;
+
+        if percentage_of_max >= 1.0 {
+            self.messenger.send("Error: You are over your quota!");
+        } else if percentage_of_max >= 0.9 {
+            self.messenger
+                .send("Urgent warning: You've used up over 90% of your quota!");
+        } else if percentage_of_max >= 0.75 {
+            self.messenger
+                .send("Warning: You've used up over 75% of your quota!");
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct MockMessenger {
+        sent_messages: Vec<String>,
+    }
+
+    impl MockMessenger {
+        fn new() -> MockMessenger {
+            MockMessenger {
+                sent_messages: vec![],
+            }
+        }
+    }
+
+    impl Messenger for MockMessenger {
+        fn send(&self, message: &str) {
+            self.sent_messages.push(String::from(message));
+        }
+    }
+
+    #[test]
+    fn it_sends_an_over_75_percent_warning_message() {
+        let mock_messenger = MockMessenger::new();
+        let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
+
+        limit_tracker.set_value(80);
+
+        assert_eq!(mock_messenger.sent_messages.len(), 1);
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::cell::RefCell;
+
+    struct MockMessenger {
+        sent_messages: RefCell<Vec<String>>,
+    }
+
+    impl MockMessenger {
+        fn new() -> MockMessenger {
+            MockMessenger {
+                sent_messages: RefCell::new(vec![]),
+            }
+        }
+    }
+
+    impl Messenger for MockMessenger {
+        fn send(&self, message: &str) {
+            self.sent_messages.borrow_mut().push(String::from(message));
+        }
+    }
+
+    #[test]
+    fn it_sends_an_over_75_percent_warning_message() {
+        // --snip--
+        assert_eq!(mock_messenger.sent_messages.borrow().len(), 1);
+    }
+}
+
+    impl Messenger for MockMessenger {
+        fn send(&self, message: &str) {
+            let mut one_borrow = self.sent_messages.borrow_mut();
+            let mut two_borrow = self.sent_messages.borrow_mut();
+
+            one_borrow.push(String::from(message));
+            two_borrow.push(String::from(message));
+        }
+    }
+
+//multiple owners of mutable data
+    #[derive(Debug)]
+enum List {
+    Cons(Rc<RefCell<i32>>, Rc<List>),
+    Nil,
+}
+
+use crate::List::{Cons, Nil};
+use std::cell::RefCell;
+use std::rc::Rc;
+
+fn main() {
+    let value = Rc::new(RefCell::new(5));
+
+    let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+
+    let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+    let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
+
+    *value.borrow_mut() += 10;
+
+    println!("a after = {a:?}");
+    println!("b after = {b:?}");
+    println!("c after = {c:?}");
+}
